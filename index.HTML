@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Правда или Действие 18+</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            background: #0b0b0b;
+            background-image: radial-gradient(ellipse at 50% 0%, #1a0a0a 0%, #0b0b0b 70%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            color: #f0e6d0;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 420px;
+            min-height: 600px;
+            background: rgba(20, 15, 15, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 40px;
+            padding: 24px 20px 32px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(180, 80, 80, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at 30% 20%, rgba(120, 30, 30, 0.08), transparent 70%);
+            pointer-events: none;
+        }
+
+        .header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .title {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #e8c8b0, #c08070);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .counter {
+            font-size: 13px;
+            color: #887060;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 4px 14px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            letter-spacing: 0.5px;
+        }
+
+        .turn-indicator {
+            width: 100%;
+            text-align: center;
+            font-size: 14px;
+            color: #a08878;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            position: relative;
+            z-index: 1;
+        }
+
+        .turn-indicator span {
+            color: #e8c8b0;
+            font-weight: 600;
+        }
+
+        .card-container {
+            width: 100%;
+            flex: 1;
+            min-height: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 0;
+            position: relative;
+            z-index: 1;
+            perspective: 800px;
+        }
+
+        .card {
+            width: 100%;
+            min-height: 260px;
+            background: linear-gradient(145deg, rgba(35, 25, 25, 0.9), rgba(18, 12, 12, 0.95));
+            border-radius: 28px;
+            padding: 32px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 20px;
+            line-height: 1.6;
+            color: #f0e0d0;
+            border: 1px solid rgba(180, 100, 80, 0.15);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
+            transform: rotateX(0deg) scale(1);
+            opacity: 1;
+            word-break: break-word;
+            position: relative;
+        }
+
+        .card.flip-out {
+            transform: rotateX(-15deg) scale(0.92);
+            opacity: 0.3;
+        }
+
+        .card.flip-in {
+            animation: cardAppear 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes cardAppear {
+            0% {
+                transform: rotateX(20deg) scale(0.85) translateY(30px);
+                opacity: 0;
+            }
+            100% {
+                transform: rotateX(0deg) scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .card-empty {
+            color: #605050;
+            font-size: 18px;
+            letter-spacing: 0.5px;
+        }
+
+        .card-type {
+            position: absolute;
+            top: 14px;
+            right: 18px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(200, 150, 130, 0.3);
+            font-weight: 600;
+        }
+
+        .buttons {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 10px;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #8a4a3a, #6a3020);
+            color: #f0e0d0;
+            box-shadow: 0 4px 20px rgba(120, 50, 40, 0.3);
+        }
+
+        .btn-primary:active {
+            box-shadow: 0 2px 10px rgba(120, 50, 40, 0.2);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            color: #a08878;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .btn-secondary:active {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-danger {
+            background: rgba(180, 60, 50, 0.15);
+            color: #906050;
+            border: 1px solid rgba(180, 60, 50, 0.1);
+        }
+
+        .btn-danger:active {
+            background: rgba(180, 60, 50, 0.25);
+        }
+
+        .btn:disabled {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .btn-icon {
+            font-size: 18px;
+            margin-right: 6px;
+        }
+
+        .reset-btn {
+            padding: 10px;
+            border: none;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.03);
+            color: #605050;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            touch-action: manipulation;
+        }
+
+        .reset-btn:active {
+            transform: scale(0.96);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .footer {
+            margin-top: 14px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Анимация пульсации для карточки */
+        .card.glow {
+            animation: glowPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { border-color: rgba(180, 100, 80, 0.15); }
+            50% { border-color: rgba(180, 100, 80, 0.35); }
+        }
+
+        /* Стиль для пустой колоды */
+        .finished-message {
+            font-size: 22px;
+            color: #c0a090;
+            text-align: center;
+            line-height: 1.8;
+        }
+        .finished-message small {
+            display: block;
+            font-size: 14px;
+            color: #706060;
+            margin-top: 8px;
+        }
+
+        @media (max-width: 400px) {
+            .app { padding: 16px 14px 20px; }
+            .card { font-size: 17px; padding: 24px 16px; min-height: 200px; }
+            .btn { font-size: 14px; padding: 12px 8px; }
+            .title { font-size: 15px; }
+            .turn-indicator { font-size: 12px; }
+        }
+
+        @media (min-width: 600px) {
+            .app { max-width: 480px; }
+            .card { font-size: 24px; padding: 40px 32px; min-height: 320px; }
+            .btn { font-size: 18px; padding: 16px 14px; }
+        }
+
+        /* Дополнительно: запрет выделения текста */
+        .no-select {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app no-select" id="app">
+    <!-- Шапка -->
+    <div class="header">
+        <div class="title">♠ Правда / Действие</div>
+        <div class="counter" id="counter">0 / 40</div>
+    </div>
+
+    <!-- Чей ход -->
+    <div class="turn-indicator" id="turnIndicator">
+        Ход: <span id="turnText">Игрок 1</span>
+    </div>
+
+    <!-- Карточка -->
+    <div class="card-container">
+        <div class="card glow" id="card">
+            <span class="card-type" id="cardType">●</span>
+            <span id="cardText" class="card-empty">Нажмите<br>«Случайная карта»</span>
+        </div>
+    </div>
+
+    <!-- Кнопки -->
+    <div class="buttons">
+        <div class="btn-row">
+            <button class="btn btn-primary" id="nextBtn">
+                <span class="btn-icon">✦</span> Случайная карта
+            </button>
+        </div>
+        <div class="btn-row">
+            <button class="btn btn-secondary" id="skipBtn" disabled>
+                <span class="btn-icon">◈</span> Завершить ход
+            </button>
+            <button class="btn btn-danger" id="resetBtn">
+                <span class="btn-icon">⟳</span> Заново
+            </button>
+        </div>
+    </div>
+
+    <div class="footer">
+        <button class="reset-btn" id="shuffleBtn">↺ Перемешать колоду</button>
+    </div>
+</div>
+
+<script>
+    (function() {
+        'use strict';
+
+        // ============================================================
+        //  КАРТОЧКИ (30 действий + 10 вопросов = 40)
+        // ============================================================
+        const CARDS = [
+            // ——— ДЕЙСТВИЯ ———
+            { type: 'действие', text: 'Снять с себя любую вещь и отдать партнёру' },
+            { type: 'действие', text: 'Снять с партнёра любую вещь, не используя руки' },
+            { type: 'действие', text: 'Придумать какое-то секс-задание другому игроку' },
+            { type: 'действие', text: 'Поцеловать партнёра с языком.' },
+            { type: 'действие', text: 'Поцеловать партнёра в губы.' },
+            { type: 'действие', text: 'Поцеловать шею партнёра в 3 точках.' },
+            { type: 'действие', text: 'Поцеловать мочку уха партнёра. Задержаться. Дышать в ухо' },
+            { type: 'действие', text: 'Оближи часть тела игрока, пока он не почувствует возбуждение' },
+            { type: 'действие', text: 'Показать ахегао' },
+            { type: 'действие', text: 'Прикусить губу партнёра (легко). Задержаться.' },
+            { type: 'действие', text: 'Сделать горячее селфи' },
+            { type: 'действие', text: 'Ласкать любую часть тела партнёра по его выбору.' },
+            { type: 'действие', text: 'Провести кончиками пальцев по позвоночнику партнёра снизу вверх. Медленно' },
+            { type: 'действие', text: 'Шлёпнуть партнёра по заднице 10 раз. Считать вслух' },
+            { type: 'действие', text: 'Представить, что вы незнакомы, а потом попытаться соблазнить' },
+            { type: 'действие', text: 'Лечь на колени партнёра. Позволить шлёпнуть себя 5 раз. Считать вслух' },
+            { type: 'действие', text: 'Провести минутную лекцию как сделать секс лучше' },
+            { type: 'действие', text: 'Сыграть сцену влюбленных' },
+            { type: 'действие', text: 'Изобразить оргазм' },
+            { type: 'действие', text: 'Флиртовать телом, словно пытаешься понравиться' },
+            { type: 'действие', text: 'Сесть на колени партнёру лицом к нему. Смотреть в глаза' },
+            { type: 'действие', text: 'Записать эротичное голосовое сообщение' },
+            { type: 'действие', text: 'Говорить что-то несексуальное, но сексуально' },
+            { type: 'действие', text: 'Взяться за горло партнёра (символически). Поцеловать.' },
+            { type: 'действие', text: 'Пощекотать партнёра. Он должен молчать. Засмеялся — повторяешь' },
+            { type: 'действие', text: 'Попросить партнёра сделать что-то грязное. Чётко и без смущения' },
+            { type: 'действие', text: 'Поиграть с сосками партнера' },
+            { type: 'действие', text: 'Рекламировать себя как человека, который максимально хорош в сексе' },
+            { type: 'действие', text: 'Показать нижнее белье' },
+            { type: 'действие', text: 'Сделать массаж спины' },
+
+            // ——— ВОПРОСЫ ———
+            { type: 'вопрос', text: 'Вспомни самый возбуждающий момент, который у нас уже был. Опиши в деталях' },
+            { type: 'вопрос', text: 'Тебя когда-нибудь заставали за неприличными вещами?' },
+            { type: 'вопрос', text: 'Если бы я разрешил(а) тебе делать со мной всё, что захочешь, на один вечер — опиши сценарий' },
+            { type: 'вопрос', text: 'Расскажи про худший поцелуй' },
+            { type: 'вопрос', text: 'Самое вызывающее нижнее белье, что у тебя есть?' },
+            { type: 'вопрос', text: 'Приходилось ли видеть секс со стороны?' },
+            { type: 'вопрос', text: 'Какая музыка подойдет для секса?' },
+            { type: 'вопрос', text: 'Что я должна(жен) сделать или сказать — чтобы ты кончил(а) быстрее обычного?' },
+            { type: 'вопрос', text: 'О чем был последний эротический сон?' },
+            { type: 'вопрос', text: 'Что думал(а) о сексе в детстве?' }
+        ];
+
+        // ============================================================
+        //  СОСТОЯНИЕ
+        // ============================================================
+        let deck = [];
+        let currentIndex = 0;          // индекс в deck
+        let turn = 1;                 // 1 или 2
+        let isCardOpen = false;       // открыта ли карта
+
+        // DOM
+        const cardEl = document.getElementById('card');
+        const cardText = document.getElementById('cardText');
+        const cardType = document.getElementById('cardType');
+        const turnText = document.getElementById('turnText');
+        const counterEl = document.getElementById('counter');
+        const nextBtn = document.getElementById('nextBtn');
+        const skipBtn = document.getElementById('skipBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const shuffleBtn = document.getElementById('shuffleBtn');
+
+        // ============================================================
+        //  ФУНКЦИИ
+        // ============================================================
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function initDeck() {
+            deck = shuffleArray([...CARDS]);
+            currentIndex = 0;
+            turn = 1;
+            isCardOpen = false;
+            updateUI();
+            skipBtn.disabled = true;
+            showEmptyCard();
+        }
+
+        function showEmptyCard() {
+            cardText.textContent = 'Нажмите\n«Случайная карта»';
+            cardText.className = 'card-empty';
+            cardType.textContent = '●';
+            cardEl.classList.remove('glow');
+            cardEl.classList.remove('flip-in');
+            cardEl.classList.remove('flip-out');
+        }
+
+        function updateUI() {
+            turnText.textContent = `Игрок ${turn}`;
+            const total = CARDS.length;
+            const used = currentIndex;
+            counterEl.textContent = `${used} / ${total}`;
+
+            if (used >= total) {
+                cardText.textContent = '🎯 Колода закончена!\nНажмите «Заново»';
+                cardText.className = 'finished-message';
+                cardType.textContent = '●';
+                cardEl.classList.remove('glow');
+                nextBtn.disabled = true;
+                skipBtn.disabled = true;
+            } else {
+                nextBtn.disabled = false;
+            }
+        }
+
+        function showCard(card) {
+            // Анимация вылета старой
+            if (cardText.textContent !== 'Нажмите\n«Случайная карта»' && !cardText.classList.contains('finished-message')) {
+                cardEl.classList.add('flip-out');
+                setTimeout(() => {
+                    cardEl.classList.remove('flip-out');
+                    renderCard(card);
+                }, 300);
+            } else {
+                renderCard(card);
+            }
+        }
+
+        function renderCard(card) {
+            cardText.textContent = card.text;
+            cardText.className = '';
+            cardType.textContent = card.type === 'вопрос' ? '?' : '⚡';
+            cardEl.classList.add('glow');
+            cardEl.classList.remove('flip-in');
+            // Триггер перерисовки для анимации
+            void cardEl.offsetWidth;
+            cardEl.classList.add('flip-in');
+            isCardOpen = true;
+            skipBtn.disabled = false;
+            updateUI();
+        }
+
+        function nextTurn() {
+            turn = turn === 1 ? 2 : 1;
+            turnText.textContent = `Игрок ${turn}`;
+            // Анимация смены хода (легкий пульс)
+            turnText.style.transition = 'color 0.2s';
+            turnText.style.color = '#e8c8b0';
+            setTimeout(() => {
+                turnText.style.color = '';
+            }, 300);
+        }
+
+        function drawCard() {
+            if (currentIndex >= deck.length) {
+                return;
+            }
+            const card = deck[currentIndex];
+            currentIndex++;
+            showCard(card);
+            nextTurn();
+            updateUI();
+        }
+
+        function finishTurn() {
+            if (!isCardOpen) return;
+            isCardOpen = false;
+            skipBtn.disabled = true;
+            cardEl.classList.remove('glow');
+            cardEl.classList.remove('flip-in');
+            cardEl.classList.add('flip-out');
+            setTimeout(() => {
+                cardEl.classList.remove('flip-out');
+                showEmptyCard();
+                updateUI();
+                // Если колода закончилась — блокируем nextBtn
+                if (currentIndex >= deck.length) {
+                    nextBtn.disabled = true;
+                    cardText.textContent = '🎯 Колода закончена!\nНажмите «Заново»';
+                    cardText.className = 'finished-message';
+                    cardType.textContent = '●';
+                }
+            }, 300);
+        }
+
+        function resetGame() {
+            initDeck();
+            nextBtn.disabled = false;
+            skipBtn.disabled = true;
+            cardEl.classList.remove('flip-out', 'flip-in', 'glow');
+            showEmptyCard();
+            updateUI();
+        }
+
+        function reshuffle() {
+            if (currentIndex > 0 && currentIndex < deck.length) {
+                // Перемешиваем только оставшиеся карты
+                const remaining = deck.slice(currentIndex);
+                const shuffledRemaining = shuffleArray(remaining);
+                deck = [...deck.slice(0, currentIndex), ...shuffledRemaining];
+            } else if (currentIndex === 0) {
+                deck = shuffleArray([...CARDS]);
+            } else {
+                // Колода кончилась — просто пересобираем
+                resetGame();
+                return;
+            }
+            // Не сбрасываем индекс, просто перемешали остаток
+            updateUI();
+            // Маленькая анимация на кнопке
+            shuffleBtn.style.color = '#c0a090';
+            setTimeout(() => { shuffleBtn.style.color = ''; }, 500);
+        }
+
+        // ============================================================
+        //  ОБРАБОТЧИКИ
+        // ============================================================
+        nextBtn.addEventListener('click', drawCard);
+        skipBtn.addEventListener('click', finishTurn);
+        resetBtn.addEventListener('click', resetGame);
+        shuffleBtn.addEventListener('click', reshuffle);
+
+        // ============================================================
+        //  СТАРТ
+        // ============================================================
+        initDeck();
+        showEmptyCard();
+        updateUI();
+
+        // Превентивный клик по карточке (чтобы не сбивать)
+        cardEl.addEventListener('click', () => {});
+    })();
+</script>
+
+</body>
+</html>
